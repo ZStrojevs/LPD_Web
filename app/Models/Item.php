@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    protected $fillable = ['owner_id', 'name', 'description', 'price_per_day'];
-    public function owner()
+    protected $fillable = ['user_id', 'title', 'description', 'price'];
+    public function user()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
     public function rentals()
     {
