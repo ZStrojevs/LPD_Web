@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'email_verified_at',
     ];
 
     /**
@@ -60,5 +62,17 @@ class User extends Authenticatable
     public function receivedMessages()
     {
         return $this->hasMany(Message::class, 'receiver_id');
+    }
+    public function rentalRequests()
+    {
+        return $this->hasMany(RentalRequest::class, 'renter_id');
+    }
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id'); 
+    }
+    public function isAdmin(): bool
+    {
+        return strtolower($this->role) === 'admin';
     }
 }

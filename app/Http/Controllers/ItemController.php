@@ -5,13 +5,44 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class ItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::with('user')->latest()->get();
-        return view('items.index', compact('items'));
+        $query = Item::with('user')->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Check if category column exists before filtering
+        if ($request->filled('category') && Schema::hasColumn('items', 'category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        // **Exclude items that have ANY approved rental requests**
+        $query->whereDoesntHave('rentalRequests', function ($q) {
+            $q->where('status', 'approved');
+        });
+
+        $items = $query->get();
+
+        // Get categories only if the column exists
+        $categories = collect();
+        if (Schema::hasColumn('items', 'category')) {
+            $categories = Item::select('category')
+                            ->whereNotNull('category')
+                            ->distinct()
+                            ->pluck('category');
+        }
+
+        return view('items.index', compact('items', 'categories'));
     }
 
     public function create()
@@ -21,18 +52,32 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
-            'price'        => 'required|numeric|min:0',
-        ]);
+        $rules = [
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+        ];
 
-        Item::create([
+        // Only validate category if the column exists
+        if (Schema::hasColumn('items', 'category')) {
+            $rules['category'] = 'nullable|string|max:255';
+        }
+
+        $request->validate($rules);
+
+        $data = [
             'user_id'     => Auth::id(),
             'title'       => $request->title,
             'description' => $request->description,
             'price'       => $request->price,
-        ]);
+        ];
+
+        // Only add category if the column exists
+        if (Schema::hasColumn('items', 'category') && $request->has('category')) {
+            $data['category'] = $request->category;
+        }
+
+        Item::create($data);
 
         return redirect()->route('items.index')->with('success', 'Item created successfully.');
     }
@@ -52,17 +97,31 @@ class ItemController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $request->validate([
+        $rules = [
             'title'        => 'required|string|max:255',
             'description'  => 'nullable|string',
             'price'        => 'required|numeric|min:0',
-        ]);
+        ];
 
-        $item->update([
+        // Only validate category if the column exists
+        if (Schema::hasColumn('items', 'category')) {
+            $rules['category'] = 'nullable|string|max:255';
+        }
+
+        $request->validate($rules);
+
+        $data = [
             'title'       => $request->title,
             'description' => $request->description,
             'price'       => $request->price,
-        ]);
+        ];
+
+        // Only update category if the column exists
+        if (Schema::hasColumn('items', 'category') && $request->has('category')) {
+            $data['category'] = $request->category;
+        }
+
+        $item->update($data);
 
         return redirect()->route('items.index')->with('success', 'Item updated successfully.');
     }
