@@ -1,6 +1,6 @@
 <?php
 return [
-    // General
+
     'welcome' => 'Welcome to RentLoop',
     'find_and_rent' => 'Find and rent items near you — fast and easy!',
     'latest_items' => 'Latest Items',
@@ -79,4 +79,7 @@ return [
     'cancel' => 'Cancel',
     'edit_item' => 'Edit Item',
     'update_item' => 'Update Item',
+    'all_rental_requests' => 'All Rental Requests',
+    'item_updated' => 'Item updated successfully.',
+    'all_user_items' => 'All User Items',
 ];

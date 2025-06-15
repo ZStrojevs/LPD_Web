@@ -88,28 +88,60 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/rental-requests/{rentalRequest}', [AdminController::class, 'deleteRentalRequest'])->name('rental-requests.delete');
 });
 
-// Testing routes
+
 Route::get('/test-locale', function () {
-    return response()->json([
+    return [
         'current_locale' => app()->getLocale(),
-        'session_locale' => session('locale'),
-        'welcome_translation' => __('messages.welcome'),
-        'messages_translations' => trans('messages'),
-        'lang_path' => lang_path(),
-        'translation_exists' => Lang::has('messages.welcome') ? 'Yes' : 'No'
-    ]);
-})->name('test-locale');
-
-Route::get('/test-session', function () {
-    session(['test' => 'value']);
-    return 'Session test: ' . session('test');
-})->name('test-session');
-
+        'accept_language' => request()->server('HTTP_ACCEPT_LANGUAGE'),
+        'translation_test' => __('messages.welcome'),
+    ];
+});
 Route::get('/test-translation', function () {
     return [
         'current_locale' => app()->getLocale(),
         'welcome_en' => __('messages.welcome'),
         'has_translation' => Lang::has('messages.welcome'),
         'all_messages' => trans('messages'),
+    ];
+});
+Route::get('/debug-headers', function () {
+    $request = request();
+    
+    return [
+        'all_headers' => $request->headers->all(),
+        'accept_language_header' => $request->header('Accept-Language'),
+        'accept_language_server' => $request->server('HTTP_ACCEPT_LANGUAGE'),
+        'current_locale' => app()->getLocale(),
+        'available_locales' => ['en', 'lv', 'ru'],
+        'user_agent' => $request->userAgent(),
+    ];
+});
+Route::get('/middleware-test', function () {
+    // Manually simulate what the middleware should do
+    $acceptLanguage = request()->server('HTTP_ACCEPT_LANGUAGE');
+    $availableLocales = ['en', 'lv', 'ru'];
+    
+    $locale = 'en';
+    if ($acceptLanguage) {
+        $languages = explode(',', $acceptLanguage);
+        foreach ($languages as $lang) {
+            $lang = trim(explode(';', $lang)[0]);
+            $langCode = substr($lang, 0, 2);
+            if (in_array($langCode, $availableLocales)) {
+                $locale = $langCode;
+                break;
+            }
+        }
+    }
+    
+    // Set locale manually
+    app()->setLocale($locale);
+    
+    return [
+        'accept_language' => $acceptLanguage,
+        'detected_locale' => $locale,
+        'current_locale' => app()->getLocale(),
+        'welcome_message' => __('messages.welcome'),
+        'config_locale' => config('app.locale'),
     ];
 });

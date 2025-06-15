@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class ItemController extends Controller
 {
@@ -28,7 +29,9 @@ class ItemController extends Controller
 
         // **Exclude items that have ANY approved rental requests**
         $query->whereDoesntHave('rentalRequests', function ($q) {
-            $q->where('status', 'approved');
+            $q->where('status', 'approved')
+              ->whereDate('start_date', '<=', Carbon::today())
+              ->whereDate('end_date', '>=', Carbon::today());
         });
 
         $items = $query->get();
@@ -56,9 +59,9 @@ class ItemController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|max:2048',
         ];
 
-        // Only validate category if the column exists
         if (Schema::hasColumn('items', 'category')) {
             $rules['category'] = 'nullable|string|max:255';
         }
@@ -72,9 +75,13 @@ class ItemController extends Controller
             'price'       => $request->price,
         ];
 
-        // Only add category if the column exists
         if (Schema::hasColumn('items', 'category') && $request->has('category')) {
             $data['category'] = $request->category;
+        }
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $path = $request->file('image')->store('items', 'public'); 
+            $data['image'] = $path;
         }
 
         Item::create($data);
@@ -98,12 +105,12 @@ class ItemController extends Controller
         }
 
         $rules = [
-            'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
-            'price'        => 'required|numeric|min:0',
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|max:2048', // max 2MB
         ];
 
-        // Only validate category if the column exists
         if (Schema::hasColumn('items', 'category')) {
             $rules['category'] = 'nullable|string|max:255';
         }
@@ -116,14 +123,24 @@ class ItemController extends Controller
             'price'       => $request->price,
         ];
 
-        // Only update category if the column exists
         if (Schema::hasColumn('items', 'category') && $request->has('category')) {
             $data['category'] = $request->category;
         }
 
+        // Handle image upload and delete old image if any
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            // Delete old image if exists
+            if ($item->image && Storage::disk('public')->exists($item->image)) {
+                Storage::disk('public')->delete($item->image);
+            }
+
+            $path = $request->file('image')->store('items', 'public');
+            $data['image'] = $path;
+        }
+
         $item->update($data);
 
-        return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+        return redirect()->route('items.index')->with('success', __('messages.item_updated'));
     }
 
     public function destroy(Item $item)

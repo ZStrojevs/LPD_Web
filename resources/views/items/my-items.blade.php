@@ -16,6 +16,14 @@
             @foreach ($items as $item)
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
+                        @if($item->image)
+                            <img 
+                                src="{{ asset('storage/' . $item->image) }}" 
+                                class="card-img-top" 
+                                alt="{{ $item->title }}" 
+                                style="max-height: 200px; object-fit: cover;"
+                            >
+                        @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $item->title }}</h5>
                             {{-- no description --}}
@@ -39,4 +47,3 @@
     @endif
 </div>
 @endsection
-

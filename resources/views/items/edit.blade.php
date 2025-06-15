@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <h1>{{ __('messages.edit_item') }}</h1>
 
-    <form method="POST" action="{{ route('admin.items.update', $item) }}">
+    <form method="POST" action="{{ route('items.update', $item) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -70,8 +70,26 @@
             </select>
         </div>
 
+        {{-- New image upload field --}}
+        <div class="mb-3">
+            <label for="image" class="form-label">{{ __('messages.image') }}</label>
+            @if($item->image)
+                <div class="mb-2">
+                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" style="max-width: 150px; max-height: 150px;">
+                </div>
+            @endif
+            <input 
+                type="file" 
+                id="image" 
+                name="image" 
+                class="form-control"
+                accept="image/*"
+            >
+            <small class="form-text text-muted">{{ __('messages.image_help') }}</small>
+        </div>
+
         <button type="submit" class="btn btn-primary">{{ __('messages.update_item') }}</button>
-        <a href="{{ route('admin.items') }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
+        <a href="{{ route('items.index') }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
     </form>
 </div>
 @endsection

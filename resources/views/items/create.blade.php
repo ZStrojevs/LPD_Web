@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <h1>{{ __('messages.add_new_item') }}</h1>
 
-    <form method="POST" action="{{ route('items.store') }}">
+    <form method="POST" action="{{ route('items.store') }}" enctype="multipart/form-data">
         @csrf
 
         <div class="mb-3">
@@ -55,6 +55,19 @@
                 <option value="Clothing" {{ old('category') == 'Clothing' ? 'selected' : '' }}>{{ __('messages.category_clothing') }}</option>
                 <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>{{ __('messages.category_other') }}</option>
             </select>
+        </div>
+
+        {{-- Image upload field --}}
+        <div class="mb-3">
+            <label for="image" class="form-label">{{ __('messages.image') }}</label>
+            <input 
+                type="file" 
+                id="image" 
+                name="image" 
+                class="form-control"
+                accept="image/*"
+            >
+            <small class="form-text text-muted">{{ __('messages.image_help') }}</small>
         </div>
 
         <button type="submit" class="btn btn-success">{{ __('messages.save_item') }}</button>

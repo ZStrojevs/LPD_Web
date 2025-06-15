@@ -97,4 +97,8 @@ return [
     'item' => 'Item',
     'actions' => 'Actions',
     'renter' => 'Renter',
+    'image' => 'Image',
+    'current_image' => 'Current Image',
+    'item_updated' => 'Item updated successfully',
+    'image_help' => 'You can upload an image to represent your item. Supported formats: jpg, png, gif. Max size: 2MB.',
 ];
