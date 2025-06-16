@@ -27,7 +27,6 @@ class ItemController extends Controller
             $query->where('category', $request->input('category'));
         }
 
-        // **Exclude items that have ANY approved rental requests**
         $query->whereDoesntHave('rentalRequests', function ($q) {
             $q->where('status', 'approved')
               ->whereDate('start_date', '<=', Carbon::today())
@@ -36,7 +35,6 @@ class ItemController extends Controller
 
         $items = $query->get();
 
-        // Get categories only if the column exists
         $categories = collect();
         if (Schema::hasColumn('items', 'category')) {
             $categories = Item::select('category')
@@ -127,9 +125,7 @@ class ItemController extends Controller
             $data['category'] = $request->category;
         }
 
-        // Handle image upload and delete old image if any
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            // Delete old image if exists
             if ($item->image && Storage::disk('public')->exists($item->image)) {
                 Storage::disk('public')->delete($item->image);
             }
@@ -164,4 +160,14 @@ class ItemController extends Controller
     {
         return view('items.show', compact('item'));
     }
+    public function home()
+    {
+        $items = Item::with('user')
+                    ->latest()
+                    ->take(6)
+                    ->get();
+
+        return view('home', compact('items'));
+    }
+
 }

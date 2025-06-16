@@ -28,8 +28,8 @@
                         <form method="POST" action="{{ route('language.switch') }}">
                             @csrf
                             <select name="language" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
-                                <option value="ru" {{ app()->getLocale() == 'ru' ? 'selected' : '' }}>Русский</option>
+                                <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>
+                                <option value="ru" {{ app()->getLocale() === 'ru' ? 'selected' : '' }}>Русский</option>
                             </select>
                         </form>
                     </li>
@@ -77,12 +77,10 @@
 <div class="container my-5">
     @auth
         @if(auth()->user()->is_admin)
-            {{-- Admin Dashboard Summary --}}
             <h1 class="mb-4">{{ __('messages.admin_dashboard') }}</h1>
-
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card text-white bg-primary mb-3">
+                    <div class="card bg-primary text-white mb-3">
                         <div class="card-header">{{ __('messages.users') }}</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ $userCount ?? 0 }}</h5>
@@ -90,9 +88,8 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4">
-                    <div class="card text-white bg-success mb-3">
+                    <div class="card bg-success text-white mb-3">
                         <div class="card-header">{{ __('messages.items') }}</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ $itemCount ?? 0 }}</h5>
@@ -100,9 +97,8 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4">
-                    <div class="card text-white bg-warning mb-3">
+                    <div class="card bg-warning text-white mb-3">
                         <div class="card-header">{{ __('messages.rental_requests') }}</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ $rentalRequestCount ?? 0 }}</h5>
@@ -111,67 +107,33 @@
                     </div>
                 </div>
             </div>
-        @else
-            {{-- Normal home content --}}
-            <h1 class="text-center mb-4">{{ __('messages.welcome') }}</h1>
-            <p class="text-center mb-5">{{ __('messages.find_and_rent') }}</p>
-
-            <h2 class="mb-4">{{ __('messages.latest_items') }}</h2>
-
-            <div class="row">
-                @forelse ($items as $item)
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            @if($item->image)
-                                <img 
-                                    src="{{ asset('storage/' . $item->image) }}" 
-                                    class="card-img-top" 
-                                    alt="{{ $item->title }}" 
-                                    style="max-height: 200px; object-fit: cover;"
-                                >
-                            @endif
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $item->title }}</h5>
-                                <p class="card-text text-muted">{{ $item->description }}</p>
-                                <p class="fw-bold">${{ number_format($item->price, 2) }}</p>
-                                @guest
-                                    <a href="{{ route('items.show', $item) }}" class="btn btn-primary btn-sm">{{ __('messages.view_details') }}</a>
-                                @endguest
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-center">{{ __('messages.no_items_available') }}</p>
-                @endforelse
-            </div>
         @endif
-    @else
-        {{-- Guest content --}}
-        <h1 class="text-center mb-4">{{ __('messages.welcome') }}</h1>
-        <p class="text-center mb-5">{{ __('messages.find_and_rent') }}</p>
+    @endauth
 
-        <h2 class="mb-4">{{ __('messages.latest_items') }}</h2>
+    <h1 class="text-center mb-4">{{ __('messages.welcome') }}</h1>
+    <p class="text-center mb-5">{{ __('messages.find_and_rent') }}</p>
 
-        <div class="row">
-            @forelse ($items as $item)
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $item->title }}</h5>
-                            <p class="card-text text-muted">{{ $item->description }}</p>
-                            <p class="fw-bold">${{ number_format($item->price, 2) }}</p>
-                            <a href="{{ route('items.show', $item) }}" class="btn btn-primary btn-sm">{{ __('messages.view_details') }}</a>
-                        </div>
+    <h2 class="mb-4">{{ __('messages.latest_items') }}</h2>
+    <div class="row">
+        @forelse ($items as $item)
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    @if($item->image)
+                        <img src="{{ asset('storage/' . $item->image) }}" class="card-img-top" alt="{{ $item->title }}" style="max-height: 200px; object-fit: cover;">
+                    @endif
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $item->title }}</h5>
+                        <p class="card-text text-muted">{{ $item->description }}</p>
+                        <p class="fw-bold">${{ number_format($item->price, 2) }}</p>
                     </div>
                 </div>
-            @empty
-                <p class="text-center">{{ __('messages.no_items_available') }}</p>
-            @endforelse
-        </div>
-    @endauth
+            </div>
+        @empty
+            <p class="text-center">{{ __('messages.no_items_available') }}</p>
+        @endforelse
+    </div>
 </div>
 
-<!-- Bootstrap 5 JS CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

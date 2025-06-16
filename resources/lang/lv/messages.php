@@ -78,4 +78,8 @@ return [
     'all_rental_requests' => 'Visi nomas pieprasījumi',
     'item_updated' => 'Priekšmets veiksmīgi atjaunināts.',
     'all_user_items' => 'Visi lietotāja priekšmeti',
+    'item_description' => 'Preces apraksts',
+    'total_rental_days' => 'Kopējais nomas dienu skaits',
+    'total_cost' => 'Kopējās izmaksas',
+    'request_created_at' => 'Pieprasījuma datums',
 ];

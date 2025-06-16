@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 
-// Language switch route
 Route::post('/language-switch', function (Request $request) {
     $lang = $request->input('language');
     $availableLocales = ['en', 'ru'];
@@ -34,10 +33,8 @@ Route::post('/language-switch', function (Request $request) {
     return redirect()->back();
 })->name('language.switch');
 
-// Home page route
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Guest routes (login, register)
 Route::middleware('guest')->group(function () {
     Route::get('/register', [UserController::class, 'showRegister'])->name('register');
     Route::post('/register', [UserController::class, 'register']);
@@ -45,7 +42,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [UserController::class, 'login']);
 });
 
-// Authenticated user routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
@@ -64,21 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-// Public routes for viewing items (no auth needed)
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
 
-// Admin routes with admin middleware & prefix
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Option 1: Dashboard shows main admin summary
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
-
-    // Option 2: Redirect dashboard to items list (uncomment if preferred)
-    /*
-    Route::get('/', function() {
-        return redirect()->route('admin.items');
-    })->name('dashboard');
-    */
 
     Route::get('/items', [AdminController::class, 'items'])->name('items');
     Route::get('/items/{item}/edit', [AdminController::class, 'editItem'])->name('items.edit');
@@ -117,7 +103,6 @@ Route::get('/debug-headers', function () {
     ];
 });
 Route::get('/middleware-test', function () {
-    // Manually simulate what the middleware should do
     $acceptLanguage = request()->server('HTTP_ACCEPT_LANGUAGE');
     $availableLocales = ['en', 'lv', 'ru'];
     
@@ -134,7 +119,6 @@ Route::get('/middleware-test', function () {
         }
     }
     
-    // Set locale manually
     app()->setLocale($locale);
     
     return [

@@ -101,4 +101,8 @@ return [
     'current_image' => 'Current Image',
     'item_updated' => 'Item updated successfully',
     'image_help' => 'You can upload an image to represent your item. Supported formats: jpg, png, gif. Max size: 2MB.',
+    'item_description' => 'Item Description',
+    'total_rental_days' => 'Total Rental Days',
+    'total_cost' => 'Total Cost',
+    'request_created_at' => 'Request Created At',
 ];
